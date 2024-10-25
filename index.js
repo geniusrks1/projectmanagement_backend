@@ -22,6 +22,15 @@ app.use("/api/v1", indexRouter);
 app.use("/api/v1/user", userRouter);
 app.use("/api/v1/job", jobRouter);
 app.use("/api/v1/task",taskrouter);
+
+app.get('/',(req,res)=>{
+    res.status(200).json({
+        message:"welcome to project managent apis",
+         api1:"visit /api/v1/task",
+         api2:"visit /api/v1/user"
+
+        })
+})
 app.listen(process.env.PORT, () => {
     console.log("Server is running on port 8000");
     mongoose.connect(process.env.MONGOOSE_URI_STRING, {
