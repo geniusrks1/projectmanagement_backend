@@ -1,69 +1,53 @@
-const mongoose = require("mongoose");
-const Schema = mongoose.Schema;
+const mongoose = require('mongoose');
+const checkListSchema = require('./checkList.Schema'); 
 
-const taskSchema = new Schema({
+const taskSchema = new mongoose.Schema(
+  {
     title: {
       type: String,
       required: true,
-      trim: true,
-    },
-    description: {
-      type: String,
     },
     priority: {
       type: String,
-      enum: ['Low', 'Medium', 'High'],
+      enum: ['high', 'moderate', 'low'],
       required: true,
     },
-    dueDate: {
-      type: Date,
+    checklists: {
+      type: [checkListSchema], 
+      required: true,
+      validate: {
+        validator: function (val) {
+          return val.length > 0;
+        },
+        message: 'Please add at least one checklist',
+      },
     },
     status: {
       type: String,
-      enum: ['backlog', 'to-do', 'in-progress', 'done'],
-      default: 'to-do',
+      enum: ['backlog', 'inProgress', 'todo', 'done'],
+      default: 'todo',
     },
-    category: {
-      type: String,
-    },
-    creator: {
-      type: mongoose.Schema.ObjectId,
-      ref: 'User',
-      required: true,
-    },
-    assignees: [{
-      type: mongoose.Schema.ObjectId,
-      ref: 'User',
-    }],
-    checklist: {
-      type: [String],
-      required: true,
-    },
-    sharedPublicly: {
-      type: Boolean,
-      default: false,
-    },
+    dueDate: { type: Date },
     createdAt: {
       type: Date,
       default: Date.now,
     },
-    updatedAt: {
-      type: Date,
-      default: Date.now,
-    },
-  });
-  
-  
-  taskSchema.pre('save', function (next) {
-    this.updatedAt = new Date();
-    next();
-  });
+    createdBy: mongoose.ObjectId,
+  },
+  {
+    toJSON: { virtuals: true },
+    toObject: { virtuals: true },
+  }
+);
 
-  const Task = mongoose.model("Task", taskSchema);
+taskSchema.virtual('isExpired').get(function () {
+  if (!this.dueDate) {
+    return false;
+  }
 
-module.exports = {
-    Task
-}
-  
- 
-  
+  return new Date() > this.dueDate;
+});
+
+const Task = mongoose.model('Task', taskSchema);
+
+module.exports = {Task};
