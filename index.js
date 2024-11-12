@@ -15,10 +15,14 @@ app.use(bodyParser.urlencoded({ extended: true }));
 const indexRouter = require("./routes/index");
 const userRouter = require("./routes/user");
 const taskrouter=require("./routes/task");
+const analyticsrouter=require("./routes/analytics");
+const { incomingRequestLogger } = require("./middleware");
 
+app.use(incomingRequestLogger);
 app.use("/api/v1", indexRouter);
 app.use("/api/v1/users", userRouter);
 app.use("/api/v1/tasks",taskrouter);
+app.use("/api/v1/analytics",analyticsrouter);
 
 app.get('/',(req,res)=>{
     res.status(200).json({
